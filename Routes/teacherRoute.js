@@ -1,15 +1,13 @@
 const express = require("express");
-const {param}=require("express-validator");
 const validateMW=require("./../Core/validations/validateMW");
-const storeTeacherValidator=require("./../Core/validations/storeTeacherValidator");
-const updateTeacherValidator=require("./../Core/validations/updateTeacherValidator");
+const teacherValidator=require("../Core/validations/teacherValidator");
 const controller = require("../Controller/teacherContoller");
 const router = express.Router();
 
 router.route("/teachers")
     .get(controller.getAllTeachers)
-    .post(storeTeacherValidator,validateMW,controller.addTeacher)
-    .patch(updateTeacherValidator,validateMW,controller.updateTeacher)
-    .delete(updateTeacherValidator,validateMW,controller.deleteTeacher)
+    .post(teacherValidator.store,validateMW,controller.addTeacher)
+    .patch(teacherValidator.update,validateMW,controller.updateTeacher)
+    .delete(teacherValidator.delete,validateMW,controller.deleteTeacher)
 
 module.exports=router;

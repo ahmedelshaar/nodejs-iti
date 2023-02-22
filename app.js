@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require("cors");
 const logger = require("morgan");
+const mongoose = require("mongoose");
 
 const childRoute=require("./Routes/childRoute")
 const classRoute=require("./Routes/classRoute")
@@ -8,7 +9,14 @@ const teacherRoute=require("./Routes/teacherRoute")
 
 const port = process.env.PORT || 8080;
 const app = express();
-app.listen(port, () => console.log(`listening on Port: ${port}`));
+mongoose.set("strictQuery", true);
+mongoose.connect("mongodb://127.0.0.1:27017/ITI")
+.then(() => {
+    app.listen(port, () => console.log(`listening on Port: ${port}`));
+})
+.catch((error) => {
+    console.log("DB Error: " + error);
+});
 
 app.use(cors());
 app.use(logger("dev"));
