@@ -5,15 +5,14 @@ const childSchema=mongoose.model("child");
 exports.getAllChilderns=(request,response,next)=>{
   childSchema
   .find()
-  .then((result) =>{
-    response.status(200).json(result);
+  .then((data) =>{
+    response.status(200).json(data);
   })
   .catch((error) => next(error));
 }
 
 exports.addChild=(request,response,next)=>{
   new childSchema({
-    _id: request.body.id,
     name: request.body.name,
     age: request.body.age,
     level: request.body.level,
@@ -44,8 +43,12 @@ exports.updateChild=(request,response,next)=>{
       },
     }
   )
-  .then((result) => {
-    response.status(201).json(result);
+  .then((data) => {
+    if(data.matchedCount == 0){
+      throw new Error("Not Found")
+    }else{
+      response.status(200).json(data);
+    }
   })
   .catch((error) => next(error));
 }
@@ -53,15 +56,11 @@ exports.updateChild=(request,response,next)=>{
 exports.deleteChild=(request,response,next)=>{
   childSchema
   .deleteOne({_id: request.body.id})
-  .then((result) => {
-    if(result.deletedCount != 0){
-      response.status(200).json({
-        "data": "deleted"
-      });
+  .then((data) => {
+    if(data.deletedCount == 0){
+      throw new Error("Not Found")
     }else{
-      response.status(404).json({
-        "data": "Not Found"
-      });
+      response.status(200).json(data);
     }
   })
   .catch((error) => next(error));
@@ -70,13 +69,11 @@ exports.deleteChild=(request,response,next)=>{
 exports.getChildern=(request,response,next)=>{
   childSchema
   .findOne({_id: request.params.id})
-  .then((result) =>{
-    if(result == null){
-      response.status(404).json({
-        "data": "Not Found"
-      });
+  .then((data) =>{
+    if(data == null){
+      throw new Error("Not Found")
     }else{
-      response.status(200).json(result);
+      response.status(200).json(data);
     }
   })
   .catch((error) => next(error));

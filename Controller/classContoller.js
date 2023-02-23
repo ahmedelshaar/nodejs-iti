@@ -1,12 +1,16 @@
 const mongoose = require("mongoose");
 require("./../Model/class");
+require("./../Model/teacher");
+require("./../Model/child");
 const classSchema = mongoose.model("class");
+const teacherSchema = mongoose.model("teacher");
+const childSchema = mongoose.model("child");
 
 exports.getAllClasss=(request,response,next)=>{
   classSchema
   .find()
-  .then((result) => {
-    response.status(200).json(result);
+  .then((data) => {
+    response.status(200).json(data);
   })
   .catch((error) => next(error));
 }
@@ -14,76 +18,116 @@ exports.getAllClasss=(request,response,next)=>{
 exports.getClass=(request,response)=>{
   classSchema
   .findById(request.params.id)
-  .then((result) => {
-    if(result == null){
-      response.status(404).json({
-        "data": "Not Found"
-      });
+  .then((data) => {
+    if(data == null){
+      throw new Error("Not Found")
     }else{
-      response.status(200).json(result);
+      response.status(200).json(data);
     }
   })
   .catch((error) => next(error));
 }
 
 exports.addClass=(request,response,next)=>{
-  new classSchema({
-    _id: request.body.id,
-    name: request.body.name,
-    supervisor: request.body.supervisor,
-    children: request.body.children,
-  })
-  .save()
-  .then((result) => {
-    response.status(201).json(result);
-  })
-  .catch((error) => next(error));
-}
-
-exports.updateClass=(request,response)=>{
-  classSchema
-  .updateOne(
-    {
-      _id: request.body.id,
-    },
-    {
-      $set: {
+  let childerns = Array.from(new Set(request.body.children));
+  teacherSchema.findOne({_id:request.body.supervisor},{_id:1})
+  .then(data => {
+    if(data==null){
+      throw new Error("Teacher not Found");
+    }else{
+      return childSchema.find({_id:{$in:childerns}},{_id:1})
+    }
+  }).then(data => {
+    if(data.length != childerns.length){
+      throw Error("Childern not Found");
+    }else{
+      return new classSchema({
         name: request.body.name,
         supervisor: request.body.supervisor,
-        childs: request.body.childs,
-      },
+        children: childerns,
+      })
+      .save()
     }
-  )
-  .then((result) => {
-    response.status(200).json(result);
+  })
+  .then((data) => {
+    response.status(201).json(data);
   })
   .catch((error) => next(error));
 }
 
-exports.deleteClass=(request,response)=>{
-  response.status(200).json({data:"Delete Class"});
+exports.updateClass=(request,response,next)=>{
+  let childerns = Array.from(new Set(request.body.children));
+  teacherSchema.findOne({_id:request.body.supervisor},{_id:1})
+  .then(data => {
+    if(data==null && request.body.supervisor != undefined){
+      throw new Error("Teacher not Found");
+    }else{
+      return childSchema.find({_id:{$in:childerns}},{_id:1})
+    }
+  }).then(data => {
+    if(data.length != childerns.length){
+      throw Error("Childern not Found");
+    }else{
+      return classSchema
+      .updateOne(
+        {
+          _id: request.body.id,
+        },
+        {
+          $set: {
+            name: request.body.name,
+            supervisor: request.body.supervisor,
+            children: childerns,
+          },
+        }
+      )
+    }
+  })
+  .then((data) => {
+    if(data.matchedCount == 0){
+      throw new Error("Not Found")
+    }else{
+      response.status(200).json(data);
+    }
+  })
+  .catch((error) => next(error));
 }
 
-
-
-exports.getClassChildern=(request,response)=>{
-  classSchema.find({_id:req.params.id},{child:1})
-  .populate({path:"child",select:{name:1}})
+exports.deleteClass=(request,response,next)=>{
+  classSchema.deleteOne({_id:request.body.id})
   .then(data=>{
-      if(data == null) throw new Error("this class not exist");
-      else{
-        response.status(200).json({data})
-      }
+    if(data.deletedCount == 0){
+      throw new Error("Not Found")
+    }else{
+      response.status(200).json(data);
+    }
   })
   .catch(error=>next(error))
 }
 
-exports.getClassTeacher=(request,response)=>{
-  classSchema.findOne({_id:req.params._id},{supervisor:1})
+
+exports.getClassChildern=(request,response,next)=>{
+  classSchema.find({_id:request.params.id},{children:1})
+  .populate({path:"children",select:{name:1}})
+  .then(data=>{
+    if(data == null){
+      throw new Error("Not Found")
+    }else{
+      response.status(200).json({data})
+    }
+  })
+  .catch(error=>next(error))
+}
+
+exports.getClassTeacher=(request,response,next)=>{
+  classSchema.findOne({_id:request.params.id},{supervisor:1})
   .populate({path:"supervisor",select:{name:1}})
   .then(data=>{
-      if(data == null) throw new Error("this class not exist");
-      else res.status(200).json({data});
+      if(data == null){
+        throw new Error("Not Found")
+      }else{
+        response.status(200).json({data})
+      }
   })
   .catch(error=>next(error))
 }

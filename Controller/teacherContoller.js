@@ -8,8 +8,8 @@ const salt = bcrypt.genSaltSync(saltRounds);
 exports.getAllTeachers=(request,response)=>{
   teacherSchema
   .find()
-  .then((result) => {
-    response.status(200).json(result);
+  .then((data) => {
+    response.status(200).json(data);
   })
   .catch((error) => next(error));
 }
@@ -44,8 +44,12 @@ exports.updateTeacher=(request,response,next)=>{
       },
     }
   )
-  .then((result) => {
-    response.status(201).json(result);
+  .then((data) => {
+    if(data.matchedCount == 0){
+      throw new Error("Not Found")
+    }else{
+      response.status(200).json(data);
+    }
   })
   .catch((error) => next(error))
 }
@@ -53,15 +57,11 @@ exports.updateTeacher=(request,response,next)=>{
 exports.deleteTeacher=(request,response)=>{
   teacherSchema
   .deleteOne({_id: request.body.id})
-  .then((result) => {
-    if(result.deletedCount != 0){
-      response.status(200).json({
-        "data": "deleted"
-      });
+  .then((data) => {
+    if(data.deletedCount == 0){
+      throw new Error("Not Found")
     }else{
-      response.status(404).json({
-        "data": "Not Found"
-      });
+      response.status(200).json(data);
     }
   })
   .catch((error) => next(error));

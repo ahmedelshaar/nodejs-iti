@@ -4,7 +4,7 @@ exports.store = [
   body("name").isString().withMessage("Name must be string"),
   body("supervisor").isMongoId().withMessage("supervisor must be object id"),
   body("children").isArray().withMessage("children must be array of ids"),
-  body("children.*").optional().isNumeric().withMessage("children must be array of ids"),
+  body("children.*").isNumeric().withMessage("children must be array of ids"),
 ];
 
 exports.update = [
@@ -26,5 +26,5 @@ exports.getChildern = [
   param("id").isInt().withMessage("Id Shoud be Number")
 ]
 exports.getTeacher = [
-  param("id").isMongoId().withMessage("Id Shoud Mongo Id")
+  param("id").isInt().withMessage("Id Shoud be Number")
 ]
