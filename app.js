@@ -2,10 +2,12 @@ const express = require('express');
 const cors = require("cors");
 const logger = require("morgan");
 const mongoose = require("mongoose");
+require('dotenv').config();
 
 const childRoute=require("./Routes/childRoute")
 const classRoute=require("./Routes/classRoute")
 const teacherRoute=require("./Routes/teacherRoute")
+const loginRoute=require("./Routes/loginRoute");
 
 const port = process.env.PORT || 8080;
 const app = express();
@@ -30,6 +32,7 @@ app.use(express.urlencoded({extended:false}));
 app.use(childRoute);
 app.use(classRoute);
 app.use(teacherRoute);
+app.use(loginRoute);
 
 
 app.use((request, response, next)=>{
