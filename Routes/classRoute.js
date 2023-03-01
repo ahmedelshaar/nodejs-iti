@@ -14,8 +14,8 @@ router.route("/class")
 
 router
     .all(Auth, Auth.checkAdmin)
-    .get("/class/:id",classValidator.getClass,validateMW,controller.getClass)
-    .get("/class/childern/:id",classValidator.getChildern,validateMW,controller.getClassChildern)
-    .get("/class/teacher/:id",classValidator.getTeacher,validateMW,controller.getClassTeacher)
+    .get("/class/:id", classValidator.getClass,validateMW,controller.getClass)
+    .get("/class/childern/:id", classValidator.getChildern,validateMW,controller.getClassChildern)
+    .get("/class/teacher/:id", classValidator.getTeacher,validateMW,controller.getClassTeacher)
 
 module.exports=router;

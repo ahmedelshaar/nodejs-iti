@@ -20,19 +20,12 @@ const upload = multer({
         },
         filename: (request, file, cb) => {
             let ext = path.extname(file.originalname);
-            let fileName = path.basename(file.originalname,ext);
+            let fileName = path.basename(file.originalname, ext);
             let finalName =  file.fieldname + '-' + fileName + '-' + Date.now() + ext
-            cb(null,finalName);
+            cb(null, finalName);
         }
     }),
 });
-
-
-const setImage = (request,response,next)=>{
-    if (request.file && request.file.path)
-        request.body.image = request.file.path;
-    next();
-}
 
 
 const router = express.Router();
@@ -40,8 +33,8 @@ const router = express.Router();
 router.route("/teachers")
     .all(Auth, Auth.checkAdminOrTeacher)
     .get(controller.getAllTeachers)
-    .post(upload.single('image'),setImage,teacherValidator.store,validateMW,controller.addTeacher)
-    .patch(upload.single('image'),setImage,teacherValidator.update,validateMW,controller.updateTeacher)
-    .delete(teacherValidator.delete,validateMW,controller.deleteTeacher)
+    .post(upload.single('image'), teacherValidator.store, validateMW, controller.addTeacher)
+    .patch(upload.single('image'), teacherValidator.update, validateMW, controller.updateTeacher)
+    .delete(teacherValidator.delete, validateMW, controller.deleteTeacher)
 
 module.exports=router;

@@ -15,7 +15,7 @@ const schema = new mongoose.Schema({
 
 schema.plugin(AutoIncrement,{
     id: 'child_model_id_counter',
-     inc_field: "_id"
+    inc_field: "_id"
 });
 
 mongoose.model("child", schema);
